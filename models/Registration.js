@@ -30,4 +30,16 @@ const deleteRegistration = async (id) => {
   return result.rows[0] || null;
 };
 
-module.exports = { createRegistration, getRegistrationsByUser, deleteRegistration };
+const getAllRegistrations = async () => {
+  const result = await pool.query(
+    `SELECT r.id, r.registered_at, r.user_id, u.name AS user_name, u.email AS user_email,
+            r.event_id, e.title AS event_title, e.date AS event_date, e.location AS event_location
+     FROM registrations r
+     JOIN users u ON r.user_id = u.id
+     JOIN events e ON r.event_id = e.id
+     ORDER BY r.registered_at DESC`
+  );
+  return result.rows;
+};
+
+module.exports = { createRegistration, getRegistrationsByUser, getAllRegistrations, deleteRegistration };

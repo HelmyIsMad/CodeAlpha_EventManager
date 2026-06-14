@@ -23,4 +23,11 @@ const getUserById = async (id) => {
   return result.rows[0] || null;
 };
 
-module.exports = { findOrCreateUser, getUserById };
+const getAllUsers = async () => {
+  const result = await pool.query(
+    'SELECT id, name, email FROM users ORDER BY id ASC'
+  );
+  return result.rows;
+};
+
+module.exports = { findOrCreateUser, getUserById, getAllUsers };

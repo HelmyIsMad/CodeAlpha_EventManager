@@ -78,4 +78,14 @@ const cancelRegistration = async (req, res) => {
   }
 };
 
-module.exports = { registerForEvent, getUserRegistrations, cancelRegistration };
+const listAllRegistrations = async (req, res) => {
+  try {
+    const registrations = await Registration.getAllRegistrations();
+    res.status(200).json(registrations);
+  } catch (err) {
+    console.error('Error fetching registrations:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+module.exports = { registerForEvent, getUserRegistrations, listAllRegistrations, cancelRegistration };

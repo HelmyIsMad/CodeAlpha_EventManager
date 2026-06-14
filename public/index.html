@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Registration</title>
+</head>
+<body>
+  <h1>Upcoming Events</h1>
+  <div id="events"></div>
+
+  <hr>
+
+  <h2>Register for an Event</h2>
+  <form id="registerForm">
+    <div>
+      <label>Name: <input type="text" id="regName" required></label>
+    </div>
+    <div>
+      <label>Email: <input type="email" id="regEmail" required></label>
+    </div>
+    <div>
+      <label>Event:
+        <select id="regEvent" required></select>
+      </label>
+    </div>
+    <button type="submit">Register</button>
+  </form>
+  <div id="registerMessage"></div>
+
+  <hr>
+
+  <h2>My Registrations</h2>
+  <div>
+    <label>User ID: <input type="number" id="lookupUserId"></label>
+    <button id="lookupBtn">Lookup</button>
+  </div>
+  <div id="myRegistrations"></div>
+
+  <script>
+    const API = '';
+
+    async function loadEvents(selectId) {
+      const res = await fetch(API + '/api/events');
+      const events = await res.json();
+
+      const container = document.getElementById('events');
+      if (events.length === 0) {
+        container.innerHTML = '<p>No events available.</p>';
+      } else {
+        let html = '<table border="1" cellpadding="6"><tr><th>ID</th><th>Title</th><th>Description</th><th>Date</th><th>Location</th></tr>';
+        events.forEach(e => {
+          html += `<tr><td>${e.id}</td><td>${e.title}</td><td>${e.description || ''}</td><td>${new Date(e.date).toLocaleString()}</td><td>${e.location}</td></tr>`;
+        });
+        html += '</table>';
+        container.innerHTML = html;
+      }
+
+      if (selectId) {
+        const sel = document.getElementById(selectId);
+        sel.innerHTML = '<option value="">-- Select Event --</option>';
+        events.forEach(e => {
+          sel.innerHTML += `<option value="${e.id}">${e.title} — ${new Date(e.date).toLocaleDateString()}</option>`;
+        });
+      }
+    }
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value;
+      const event_id = document.getElementById('regEvent').value;
+
+      if (!event_id) {
+        document.getElementById('registerMessage').innerHTML = '<span style="color:red">Please select an event.</span>';
+        return;
+      }
+
+      const res = await fetch(API + '/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, event_id: parseInt(event_id) }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('registerMessage').innerHTML = '<span style="color:green">Registration successful! Your user ID is ' + data.user_id + ', registration ID: ' + data.id + '.</span>';
+        document.getElementById('registerForm').reset();
+      } else {
+        document.getElementById('registerMessage').innerHTML = '<span style="color:red">' + (data.error || 'Registration failed.') + '</span>';
+      }
+    });
+
+    document.getElementById('lookupBtn').addEventListener('click', async () => {
+      const userId = document.getElementById('lookupUserId').value;
+      if (!userId) {
+        document.getElementById('myRegistrations').innerHTML = '<span style="color:red">Please enter a user ID.</span>';
+        return;
+      }
+      const res = await fetch(API + '/api/users/' + userId + '/registrations');
+      const data = await res.json();
+      const container = document.getElementById('myRegistrations');
+      if (!res.ok) {
+        container.innerHTML = '<span style="color:red">' + (data.error || 'User not found.') + '</span>';
+        return;
+      }
+      if (data.length === 0) {
+        container.innerHTML = '<p>No registrations found.</p>';
+        return;
+      }
+      let html = '<table border="1" cellpadding="6"><tr><th>Reg ID</th><th>Event</th><th>Date</th><th>Location</th><th>Registered At</th><th>Action</th></tr>';
+      data.forEach(r => {
+        html += `<tr><td>${r.id}</td><td>${r.title}</td><td>${new Date(r.date).toLocaleString()}</td><td>${r.location}</td><td>${new Date(r.registered_at).toLocaleString()}</td><td><button onclick="cancelReg(${r.id})">Cancel</button></td></tr>`;
+      });
+      html += '</table>';
+      container.innerHTML = html;
+    });
+
+    async function cancelReg(id) {
+      if (!confirm('Cancel registration ' + id + '?')) return;
+      const res = await fetch(API + '/api/registrations/' + id, { method: 'DELETE' });
+      const data = await res.json();
+      if (res.ok) {
+        document.getElementById('lookupBtn').click();
+      } else {
+        alert(data.error || 'Failed to cancel.');
+      }
+    }
+
+    loadEvents('regEvent');
+  </script>
+</body>
+</html>

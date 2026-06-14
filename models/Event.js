@@ -15,4 +15,22 @@ const getEventById = async (id) => {
   return result.rows[0] || null;
 };
 
-module.exports = { getAllEvents, getEventById };
+const createEvent = async (title, description, date, location) => {
+  const result = await pool.query(
+    `INSERT INTO events (title, description, date, location)
+     VALUES ($1, $2, $3, $4)
+     RETURNING id, title, description, date, location, created_at`,
+    [title, description, date, location]
+  );
+  return result.rows[0];
+};
+
+const deleteEvent = async (id) => {
+  const result = await pool.query(
+    'DELETE FROM events WHERE id = $1 RETURNING id',
+    [id]
+  );
+  return result.rows[0] || null;
+};
+
+module.exports = { getAllEvents, getEventById, createEvent, deleteEvent };
