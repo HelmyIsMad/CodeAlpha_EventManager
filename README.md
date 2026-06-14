@@ -2,6 +2,9 @@
 
 A scalable backend for managing event registrations, built with Express.js and PostgreSQL (Neon.tech).
 
+**Live demo:** [https://code-alpha-event-manager.vercel.app/](https://code-alpha-event-manager.vercel.app/)  
+**Admin panel:** [https://code-alpha-event-manager.vercel.app/admin](https://code-alpha-event-manager.vercel.app/admin)
+
 ## Setup
 
 1. Clone the repo and install dependencies:
