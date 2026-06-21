@@ -1,4 +1,4 @@
-const app = require('../server');
+const app = require('../../server');
 const initDatabase = require('../models/init');
 
 initDatabase().catch((err) => {

@@ -3,17 +3,17 @@ const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
-const initDatabase = require('./models/init');
-const eventRoutes = require('./routes/eventRoutes');
-const registrationRoutes = require('./routes/registrationRoutes');
-const userRoutes = require('./routes/userRoutes');
+const initDatabase = require('./src/models/init');
+const eventRoutes = require('./src/routes/eventRoutes');
+const registrationRoutes = require('./src/routes/registrationRoutes');
+const userRoutes = require('./src/routes/userRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'src', 'public')));
 
 app.use('/api/events', eventRoutes);
 app.use('/api/register', registrationRoutes);
@@ -21,11 +21,11 @@ app.use('/api/registrations', registrationRoutes);
 app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'src', 'public', 'index.html'));
 });
 
 app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+  res.sendFile(path.join(__dirname, 'src', 'public', 'admin.html'));
 });
 
 app.use((err, req, res, next) => {
